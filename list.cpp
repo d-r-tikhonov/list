@@ -174,7 +174,7 @@ int isListEmpty (list_t* list)
         system (buf);
 
         fprintf (logFile, "<center""><h1"">LIST DUMP - INVOCATION %u</h1"">""</center"">\n", dumpNum);
-        fprintf (logFile, "\n<img src=\"dump%u.svg\"/>\n", dumpNum);
+        fprintf (logFile, "<img src=\"dump%u.svg\"/>\n", dumpNum);
 
         dumpNum++;
     }
