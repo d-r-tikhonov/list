@@ -10,6 +10,7 @@ int main ()
     listCtor (&list, 10);
 
     listDump (&list);
+    listDump (&list);
 
     listDtor (&list);
 
