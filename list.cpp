@@ -8,9 +8,7 @@
 
 #include "list.h"
 
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-char logFile[] = "log.html";
+FILE* logFile = nullptr;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -18,9 +16,15 @@ int listCtor (list_t* list, size_t capacity)
 {
     assert (list != nullptr);
 
+    if ((logFile = fopen ("log.html", "w")) == nullptr)
+    {
+        printf ("Error in function: %s. Error opening logFile!\n", __func__);
+        return errno;
+    }
+
     if (capacity == 0)
     {
-        printf ("Error in function : %s. Error closing file!\n", __func__);
+        printf ("Error in function: %s. Error capacity = 0!\n", __func__);
         return -1;
     }    
 
@@ -55,7 +59,7 @@ int listDtor (list_t* list)
 
     if (isListDestructed (list) == 1)
     {
-        printf ("Error in function : %s. Error list already destroyed!\n", __func__);
+        printf ("Error in function: %s. Error list already destroyed!\n", __func__);
         return errno;
     }
     
@@ -66,6 +70,12 @@ int listDtor (list_t* list)
     list->freeHead  = Poison;
     list->size      = Poison;
     list->capacity  = Poison;
+
+    if ((fclose (logFile)) != 0)
+    {
+        printf ("Error in function: %s. Error closing logFile!\n", __func__);
+        return errno;
+    }
 
     return 0;
 }
@@ -101,7 +111,7 @@ int isListEmpty (list_t* list)
     void listDump (list_t* list)
     {
         assert (list != nullptr);
-        static unsigned dumpNum = 0;
+        static unsigned dumpNum = 1;
 
         static char buf[512] = {0};
         snprintf (buf, sizeof(buf), "dump%u.dot", dumpNum);
@@ -163,10 +173,8 @@ int isListEmpty (list_t* list)
         snprintf (buf, sizeof (buf), "dot -Tsvg dump%u.dot -o dump%u.svg", dumpNum, dumpNum);
         system (buf);
 
-        FILE*    logFile = fopen ("log.html", "w");
         fprintf (logFile, "<center""><h1"">LIST DUMP - INVOCATION %u</h1"">""</center"">\n", dumpNum);
         fprintf (logFile, "\n<img src=\"dump%u.svg\"/>\n", dumpNum);
-        fclose  (logFile);
 
         dumpNum++;
     }
@@ -242,7 +250,7 @@ bool isListCorrect (list_t* list)
 
     if (data[0].prev != 0 || data[0].next != 0)
     {
-        printf ("Error in function : %s. Error closing file!\n", __func__);
+        printf ("Error in function: %s. Verification FAILED!\n", __func__);
         return 0;
     }
 
@@ -252,7 +260,7 @@ bool isListCorrect (list_t* list)
         {
             if (data[index].next < 0 || data[index].next > list->capacity)
             {
-                printf ("Error in function : %s. Error closing file!\n", __func__);
+                printf ("Error in function: %s. Verification FAILED!\n", __func__);
                 return 0;
             }
             continue;
@@ -260,32 +268,30 @@ bool isListCorrect (list_t* list)
 
         if (data[index].prev < 0 || data[index].prev > list->capacity)
         {
-            printf ("Error in function : %s. Error closing file!\n", __func__);
+            printf ("Error in function: %s. Verification FAILED!\n", __func__);
             return 0;
         }
 
         if (data[index].next < 0 || data[index].next > list->capacity)
         {
-            printf ("Error in function : %s. Error closing file!\n", __func__);
+            printf ("Error in function: %s. Verification FAILED!\n", __func__);
             return 0;
         }
 
         if (data[data[index].prev].next != index && index != list->head)
         {
-            printf ("Error in function : %s. Error closing file!\n", __func__);
+            printf ("Error in function: %s. Verification FAILED!\n", __func__);
             return 0;
         }
 
         if (data[data[index].next].prev != index && index != list->tail)
         {
-            printf ("Error in function : %s. Error closing file!\n", __func__);
+            printf ("Error in function: %s. Verification FAILED!\n", __func__);
             return 0;
         }
     }
     
-    FILE* logFile = fopen ("log.html", "w");
     fprintf (logFile, "<font color=\"green\">verification passed</font>\n");
-    fclose (logFile);
 
     return 1;
 }
