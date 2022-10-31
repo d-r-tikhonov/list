@@ -30,7 +30,6 @@ int listCtor (list_t* list, size_t capacity)
         return -1;
     }    
 
-    capacity = (capacity / ListInitValue + 1) * ListInitValue;
     list->data = (node_t*) calloc (capacity + 1, sizeof (node_t));
 
     assert (list->data != nullptr);
@@ -41,14 +40,14 @@ int listCtor (list_t* list, size_t capacity)
     list->size      = 0;
     list->capacity  = capacity;
 
-    for (size_t index = 1; index < list->capacity; index++)
+    for (size_t index = 1; index <= list->capacity; index++)
     {
-        list->data[index].prev = FreeValue;
+        list->data[index].prev = FreeValuePrev;
         list->data[index].next = index + 1;
     }
 
-    list->data[list->capacity].prev = FreeValue;
-    list->data[list->capacity].next = 0;
+    list->data[list->capacity + 1].prev = FreeValuePrev;
+    list->data[list->capacity + 1].next = 0;
 
     return 0;
 }
@@ -156,15 +155,15 @@ int isListEmpty (list_t* list)
                                "       fontsize = 14; \n", index, index);
 
 
-               fprintf (dotFile, "%d [shape=record, label=\"<p>prev: %d | data: %X | <n>next: %d\"] \n} \n",
+               fprintf (dotFile, "%d [shape=record, label=\"<p>prev(HEX): %X | data(HEX): %X | <n>next(HEX): %X\"] \n} \n",
                        index, list->data[index].prev, list->data[index].value, list->data[index].next);
 
-                if (list->data[index].prev != FreeValue)
+                if (list->data[index].prev != FreeValuePrev)
                         fprintf (dotFile, "%u:n -> %d:n[color=darkgoldenrod2, style=dashed]\n", index, list->data[index].next);
                 else
                         fprintf (dotFile, "%u:n -> %d:n[color=mediumpurple4 ]\n", index, list->data[index].next);
 
-                if (list->data[index].prev != FreeValue)
+                if (list->data[index].prev != FreeValuePrev)
                         fprintf (dotFile, "%u:p -> %d:p[color=darkslategray, style=dashed]\n", index, list->data[index].prev);
         }
 
@@ -258,7 +257,7 @@ bool isListCorrect (list_t* list)
 
     for (size_t index = 1; index < list->capacity; index++)
     {
-        if (data[index].prev == FreeValue) 
+        if (data[index].prev == FreeValuePrev) 
         {
             if (data[index].next < 0 || data[index].next > list->capacity)
             {
@@ -313,8 +312,9 @@ node_t* listRecalloc (list_t* list, const size_t newCapacity)
     for (size_t index = list->capacity; index < newCapacity; index++)
     {
         data[index].next    = index + 1;
-        data[index].prev    = FreeValue;
         data[index].value   = FreeValue;
+        data[index].prev    = FreeValuePrev;
+
     }
 
     data[newCapacity - 1].next = list->freeHead;
@@ -385,7 +385,7 @@ size_t listPushBefore (list_t* list, size_t physIndex, elem_t pushValue)
 {
     assert (list != nullptr);
     assert (physIndex <= list->capacity + 1);
-    assert (!(list->data[physIndex].prev == FreeValue && (list->size != 0 || physIndex != list->tail)));
+    assert (!(list->data[physIndex].prev == FreeValuePrev && (list->size != 0 || physIndex != list->tail)));
 
     size_t currentIndex = 0;
     currentIndex = list->freeHead;

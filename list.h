@@ -8,12 +8,16 @@ typedef int elem_t;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-const size_t ListInitValue       = 10;
-const size_t ListMultiplier      = 2;
+// const size_t ListInitValue       = 10;
+// const size_t ListMultiplier      = 2;
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 const size_t ParamMaxSize        = 16;
 const size_t FreeValue           = 0xF3EEE;
 const size_t Poison              = 0xDED32;
 const size_t DeletePoison        = 0xFEE1DEAD;
+const size_t FreeValuePrev       = 0xCAFEBABE;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -64,7 +68,6 @@ size_t      listPushBefore      (list_t* list, size_t physIndex, elem_t pushValu
 size_t      listPushBegin       (list_t* list, elem_t pushValue);
 size_t      listPushEnd         (list_t* list, elem_t pushValue);
 void        listDestroyNode     (list_t* list, size_t physIndex);
-
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
