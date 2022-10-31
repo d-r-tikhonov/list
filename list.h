@@ -8,11 +8,12 @@ typedef int elem_t;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-const size_t ListInitValue       =      10;
-const size_t ListMultiplier      =       2;
+const size_t ListInitValue       = 10;
+const size_t ListMultiplier      = 2;
+const size_t ParamMaxSize        = 16;
 const size_t FreeValue           = 0xF3EEE;
 const size_t Poison              = 0xDED32;
-const size_t ParamMaxSize        = 0x00016;
+const size_t DeletePoison        = 0xFEE1DEAD;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -32,9 +33,6 @@ struct list_t
     size_t freeHead;
     size_t size;
     size_t capacity;
-
-    bool isSorted;
-    int status;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -51,19 +49,21 @@ int         listDtor            (list_t* list);
 int         isListDestructed    (list_t* list);
 int         isListEmpty         (list_t* list);
 #ifdef GRAPHVIZ_DUMP
-    void listDump (list_t* list);
+    void listDump               (const list_t* list);
 #else
-    void        listDumpFunc        (list_t* list, size_t line, const char file[ParamMaxSize], const char func[ParamMaxSize]);
+    void listDumpFunc           (list_t* list, size_t line, const char file[ParamMaxSize], const char func[ParamMaxSize]);
 #endif
 size_t      listHead            (list_t* list);
 size_t      listTail            (list_t* list);
 size_t      listNextElem        (list_t* list, size_t physIndex);
 size_t      listPrevElem        (list_t* list, size_t physIndex);
 node_t*     listRecalloc        (list_t* list, const size_t newCapacity);
-size_t      listPushBegin       (list_t* list, size_t physIndex, elem_t value);
 bool        isListCorrect       (list_t* list);
-size_t      listPushAfter       (list_t* list, size_t physIndex, elem_t pushItem);
-size_t      listPushBefore      (list_t* list, size_t physIndex, elem_t pushItem);
+size_t      listPushAfter       (list_t* list, size_t physIndex, elem_t pushValue);
+size_t      listPushBefore      (list_t* list, size_t physIndex, elem_t pushValue);
+size_t      listPushBegin       (list_t* list, elem_t pushValue);
+size_t      listPushEnd         (list_t* list, elem_t pushValue);
+void        listDestroyNode     (list_t* list, size_t physIndex);
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

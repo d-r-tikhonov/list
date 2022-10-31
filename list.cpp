@@ -8,6 +8,8 @@
 
 #include "list.h"
 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 FILE* logFile = nullptr;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -108,7 +110,7 @@ int isListEmpty (list_t* list)
 
 #ifdef GRAPHVIZ_DUMP
 
-    void listDump (list_t* list)
+    void listDump (const list_t* list)
     {
         assert (list != nullptr);
         static unsigned dumpNum = 1;
@@ -291,7 +293,7 @@ bool isListCorrect (list_t* list)
         }
     }
     
-    fprintf (logFile, "<font color=\"green\">verification passed</font>\n");
+    fprintf (logFile, "<font color=\"green\">Verification is OK!</font>\n");
 
     return 1;
 }
@@ -327,23 +329,59 @@ node_t* listRecalloc (list_t* list, const size_t newCapacity)
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-size_t listPushBegin (list_t* list, size_t physIndex, elem_t value)
+size_t listPushBegin (list_t* list, elem_t pushValue)
 {
-    size_t elemIndex = 0;
+    assert (list != nullptr);
 
+    size_t currentIndex = 0;
+    currentIndex = list->freeHead;
 
+    list->freeHead = list->data[currentIndex].next;
+
+    list->data[currentIndex].value = pushValue;
+
+    list->data[currentIndex].next = list->head;
+    list->data[list->head].prev = currentIndex;
+    list->data[currentIndex].prev = 0;
+
+    list->head = currentIndex;
+
+    list->size = list->size + 1;
+
+    assert (isListCorrect (list));
+
+    return currentIndex;
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// size_t listPushEnd ()
-// {
+size_t listPushEnd (list_t* list, elem_t pushValue)
+{
+    assert (list != nullptr);
 
-// }
+    size_t currentIndex = 0;
+    currentIndex = list->freeHead;
+
+    list->freeHead = list->data[currentIndex].next;
+
+    list->data[currentIndex].value = pushValue;
+
+    list->data[currentIndex].prev = list->tail;
+    list->data[currentIndex].next = 0;
+
+    list->data[list->tail].next = currentIndex;
+
+    list->tail = currentIndex;
+    list->size = list->size + 1;
+
+    assert (isListCorrect (list));
+
+    return currentIndex;
+}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-size_t listPushBefore (list_t* list, size_t physIndex, elem_t pushItem)
+size_t listPushBefore (list_t* list, size_t physIndex, elem_t pushValue)
 {
     assert (list != nullptr);
     assert (physIndex <= list->capacity + 1);
@@ -357,7 +395,7 @@ size_t listPushBefore (list_t* list, size_t physIndex, elem_t pushItem)
     size_t indexPrev = 0;
     indexPrev = list->data[physIndex].prev;
 
-    list->data[currentIndex].value  = pushItem;
+    list->data[currentIndex].value  = pushValue;
     list->data[currentIndex].prev   = indexPrev;
     list->data[currentIndex].next   = physIndex;
 
@@ -373,7 +411,7 @@ size_t listPushBefore (list_t* list, size_t physIndex, elem_t pushItem)
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-size_t listPushAfter (list_t* list, size_t physIndex, elem_t pushItem)
+size_t listPushAfter (list_t* list, size_t physIndex, elem_t pushValue)
 {
     assert (list != nullptr);
     assert (physIndex <= list->capacity + 1);
@@ -386,7 +424,7 @@ size_t listPushAfter (list_t* list, size_t physIndex, elem_t pushItem)
 
     size_t indexNext = list->data[physIndex].next;
 
-    list->data[currentIndex].value = pushItem;
+    list->data[currentIndex].value = pushValue;
     list->data[currentIndex].prev  = physIndex;
     list->data[currentIndex].next  = indexNext;
 
@@ -403,7 +441,26 @@ size_t listPushAfter (list_t* list, size_t physIndex, elem_t pushItem)
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-// void listDestroyElem
+void listDestroyNode (list_t* list, size_t physIndex)
+{
+    assert (list != nullptr);
+
+    size_t prev = list->data[physIndex].prev;
+    size_t next = list->data[physIndex].next;
+
+    list->data[physIndex].value = DeletePoison;
+    list->data[physIndex].next  = list->freeHead;
+    list->data[physIndex].prev  = FreeValue;
+
+    list->freeHead = physIndex;
+
+    list->data[prev].next = next;
+    list->data[next].prev = prev;
+
+    list->size = list->size - 1;
+
+    assert (isListCorrect (list));
+}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

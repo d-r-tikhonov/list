@@ -8,8 +8,11 @@ int main ()
     list_t list = {};
 
     listCtor (&list, 10);
-
     listDump (&list);
+
+    listPushBegin (&list, 20);
+    listDump (&list);
+    listPushBegin (&list, 10);
     listDump (&list);
 
     listDtor (&list);
