@@ -40,14 +40,16 @@ int listCtor (list_t* list, size_t capacity)
     list->size      = 0;
     list->capacity  = capacity;
 
-    for (size_t index = 1; index <= list->capacity; index++)
+    for (size_t index = 1; index < list->capacity; index++)
     {
         list->data[index].prev = FreeValuePrev;
         list->data[index].next = index + 1;
     }
 
-    list->data[list->capacity + 1].prev = FreeValuePrev;
-    list->data[list->capacity + 1].next = 0;
+    list->data[0].value = ValueNullData;
+
+    list->data[list->capacity].prev = FreeValuePrev;
+    list->data[list->capacity].next = 0;
 
     return 0;
 }
@@ -136,7 +138,7 @@ int isListEmpty (list_t* list)
         fprintf (dotFile, Header);
 
         fprintf (dotFile, "0");
-        for (size_t index = 1; index <= list->capacity; index++) 
+        for (size_t index = 0; index <= list->capacity; index++) 
         {
             fprintf (dotFile, "-> %d", index);
         }
@@ -148,23 +150,23 @@ int isListEmpty (list_t* list)
         fprintf (dotFile, "head->%d:n[color=cadetblue]\n", list->head);
 
 
-        for (size_t index = 0; index < list->capacity; index++) 
+        for (size_t index = 0; index <= list->capacity; index++) 
         {
-                fprintf (dotFile, "subgraph cluster%d { \n"
-                               "       label = %d;  \n"
-                               "       fontsize = 14; \n", index, index);
+            fprintf (dotFile, "subgraph cluster%d { \n"
+                            "       label = %d;  \n"
+                            "       fontsize = 14; \n", index, index);
 
 
-               fprintf (dotFile, "%d [shape=record, label=\"<p>prev(HEX): %X | data(HEX): %X | <n>next(HEX): %X\"] \n} \n",
-                       index, list->data[index].prev, list->data[index].value, list->data[index].next);
+            fprintf (dotFile, "%d [shape=record, label=\"<p>prev(HEX): %X | data(HEX): %X | <n>next(HEX): %X\"] \n} \n",
+                    index, list->data[index].prev, list->data[index].value, list->data[index].next);
 
-                if (list->data[index].prev != FreeValuePrev)
-                        fprintf (dotFile, "%u:n -> %d:n[color=darkgoldenrod2, style=dashed]\n", index, list->data[index].next);
-                else
-                        fprintf (dotFile, "%u:n -> %d:n[color=mediumpurple4 ]\n", index, list->data[index].next);
+            if (list->data[index].prev != FreeValuePrev)
+                    fprintf (dotFile, "%u:n -> %d:n[color=darkgoldenrod2, style=dashed]\n", index, list->data[index].next);
+            else
+                    fprintf (dotFile, "%u:n -> %d:n[color=mediumpurple4 ]\n", index, list->data[index].next);
 
-                if (list->data[index].prev != FreeValuePrev)
-                        fprintf (dotFile, "%u:p -> %d:p[color=darkslategray, style=dashed]\n", index, list->data[index].prev);
+            if (list->data[index].prev != FreeValuePrev)
+                    fprintf (dotFile, "%u:p -> %d:p[color=darkslategray, style=dashed]\n", index, list->data[index].prev);
         }
 
         fprintf (dotFile, "\n}");

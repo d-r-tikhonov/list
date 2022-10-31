@@ -14,10 +14,11 @@ typedef int elem_t;
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 const size_t ParamMaxSize        = 16;
-const size_t FreeValue           = 0xF3EEE;
+const size_t FreeValue           = 0xF3EE;
 const size_t Poison              = 0xDED32;
 const size_t DeletePoison        = 0xFEE1DEAD;
 const size_t FreeValuePrev       = 0xCAFEBABE;
+const size_t ValueNullData       = 0xBEADFACE;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
