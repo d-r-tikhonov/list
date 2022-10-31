@@ -4,7 +4,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
-// #include <TXLib.h>
+#include <errno.h>
+#include <Windows.h>
 
 #include "list.h"
 
@@ -18,11 +19,19 @@ int listCtor (list_t* list, size_t capacity)
 {
     assert (list != nullptr);
 
-    if ((logFile = fopen ("log.html", "w")) == nullptr)
-    {
-        printf ("Error in function: %s. Error opening logFile!\n", __func__);
-        return errno;
-    }
+    #ifdef GRAPHVIZ_DUMP
+        if ((logFile = fopen ("log.html", "w")) == nullptr)
+        {
+            printf ("Error in function: %s. Error opening logFile!\n", __func__);
+            return errno;
+        }
+    #else
+        if ((logFile = fopen ("log.txt", "w")) == nullptr)
+        {
+            printf ("Error in function: %s. Error opening logFile!\n", __func__);
+            return errno;
+        }
+    #endif
 
     if (capacity == 0)
     {
@@ -188,16 +197,11 @@ int isListEmpty (list_t* list)
     {
         fprintf (logFile, "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~START LIST DUMP~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n");
 
-        if (list->status)
-        {
-            fprintf(logFile, "Lists's pointer is null\n");
-        }
-
-        fprintf (logFile, "Called at %s at %s(%lu)\n", file, func, line);
+        fprintf (logFile, "Called at %s at %s(%d)\n", file, func, line);
         fprintf (logFile, "List status: OK!\n"); 
 
 
-        fprintf (logFile, "Head: %lu\nTail: %lu\nFreeHead: %lu\nSize: %lu\nCapacity: %lu\n", 
+        fprintf (logFile, "Head: %d\nTail: %d\nFreeHead: %d\nSize: %d\nCapacity: %d\n", 
             list->head, list->tail, list->freeHead, list->size, list->capacity);
 
         fprintf (logFile, "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n");
@@ -207,7 +211,7 @@ int isListEmpty (list_t* list)
 
         for (size_t index = 0; index <= list->capacity; ++index)
         {
-            fprintf (logFile, "%4lu    %8lu    %5d   %4lu\n", index, list->data[index].prev, list->data[index].value, list->data[index].next);
+            fprintf (logFile, "%4d    %8d    %5d   %4d\n", index, list->data[index].prev, list->data[index].value, list->data[index].next);
         }
 
         fprintf (logFile, "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~END LIST DUMP~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
@@ -253,7 +257,8 @@ bool isListCorrect (list_t* list)
 
     if (data[0].prev != 0 || data[0].next != 0)
     {
-        printf ("Error in function: %s. Verification FAILED!\n", __func__);
+        printf ("Error in function: %s. Verification FAILED! Condition: data[0].prev != 0 OR data[0].next != 0\n", __func__);
+        listDump (list);
         return 0;
     }
 
@@ -263,7 +268,8 @@ bool isListCorrect (list_t* list)
         {
             if (data[index].next < 0 || data[index].next > list->capacity)
             {
-                printf ("Error in function: %s. Verification FAILED!\n", __func__);
+                printf ("Error in function: %s. Verification FAILED! Condition: next < 0 OR next > capacity.\n", __func__);
+                listDump (list);
                 return 0;
             }
             continue;
@@ -271,25 +277,29 @@ bool isListCorrect (list_t* list)
 
         if (data[index].prev < 0 || data[index].prev > list->capacity)
         {
-            printf ("Error in function: %s. Verification FAILED!\n", __func__);
+            printf ("Error in function: %s. Verification FAILED! Condition: prev < 0 OR prev > capacity.\n", __func__);
+            listDump (list);
             return 0;
         }
 
         if (data[index].next < 0 || data[index].next > list->capacity)
         {
-            printf ("Error in function: %s. Verification FAILED!\n", __func__);
+            printf ("Error in function: %s. Verification FAILED! Condition: next < 0 OR next > capacity.\n", __func__);
+            listDump (list);
             return 0;
         }
 
         if (data[data[index].prev].next != index && index != list->head)
         {
             printf ("Error in function: %s. Verification FAILED!\n", __func__);
+            listDump (list);
             return 0;
         }
 
         if (data[data[index].next].prev != index && index != list->tail)
         {
             printf ("Error in function: %s. Verification FAILED!\n", __func__);
+            listDump (list);
             return 0;
         }
     }
@@ -466,10 +476,167 @@ void listDestroyNode (list_t* list, size_t physIndex)
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-//void поиска элемента по его номеру в последовательности (операция индексации)
+size_t getPhysicalByLogicalAndDoNotSaveTheIndexMySelf (list_t* list, size_t logicalIndex)
+{
+    assert (list != nullptr);
+
+    if (logicalIndex > list->size)
+    {
+        printf ("Error in function: %s. The index is larger than the list size!\n", __func__);
+        return 0;
+    }
+
+    if (list->isListSorted == true)
+    {
+        return list->head - 1 + logicalIndex;
+    }
+
+    size_t index = 1;
+    size_t physicalIndex = list->head;
+
+    printf ("Bro, krasava, now go get an hour's sleep, or donate to the developer on the site: https://natribu.org/");
+    Sleep (3600);
+
+    while (index < logicalIndex)
+    {
+        physicalIndex = list->data[physicalIndex].next;
+        index++;
+    }
+
+    return physicalIndex;
+}
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+size_t getLogicalByPhysical (list_t* list, size_t physIndex)
+{
+    size_t logicalIndex = 1;
+    size_t currentIndex = list->head;
+
+    while (currentIndex != physIndex)
+    {
+        currentIndex = list->data[currentIndex].next;
+
+        if (currentIndex == 0)
+        {
+            printf ("Error in function: %s. The currentIndex == 0!\n", __func__);
+            return 0; 
+        }
+        
+        logicalIndex++;
+    }
+
+    return logicalIndex;
+}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-//void totalDestroy
+elem_t listTailRemove (list_t* list)
+{
+    elem_t value = list->data[list->tail].value;
+
+    size_t newTail = list->data[list->tail].prev;
+
+    list->data[list->tail].prev  = FreeValuePrev;
+    list->data[list->tail].value = DeletePoison;
+    list->data[list->tail].next  = list->freeHead;
+
+    list->freeHead = list->tail;
+    list->tail     = newTail;
+
+    list->size = list->size - 1;
+
+    return value;
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+elem_t listHeadRemove (list_t* list)
+{
+    elem_t value = list->data[list->head].value;
+
+    size_t newHead = list->data[list->head].next;
+
+    list->data[list->head].prev  = FreeValuePrev;
+    list->data[list->head].value = DeletePoison;
+    list->data[list->head].next  = list->freeHead;
+
+    list->freeHead = list->head;
+
+    list->head = newHead;
+
+    list->size = list->size - 1;
+    
+    return value;
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void clearList (list_t* list)
+{
+    assert (list != nullptr);
+    assert (isListCorrect (list));
+
+    if (isListEmpty (list))
+    {
+        printf ("Error in function: %s. There is nothing to clean, the list is already empty!\n", __func__);
+    }
+
+    while (list->size != 0)
+    {
+        listTailRemove (list);
+    }
+
+    assert (isListCorrect (list));
+    assert (isListEmpty   (list));
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void listLinearize (list_t* list)
+{
+    assert (list != nullptr);
+
+    node_t* newNodesArray = (node_t*) calloc (list->capacity + 1, sizeof (node_t)); 
+
+    assert (newNodesArray != nullptr);
+
+    size_t nextNode = list->head;
+
+    if (list->size == 0)
+    {
+        nextNode = 0;
+    }
+
+    list->freeHead = 0;
+
+    for (size_t index = 1; index <= list->capacity; index++)
+    {
+        if (nextNode != 0)
+        {
+            newNodesArray[index].prev  = (index == 1 ? 0 : index - 1);
+            newNodesArray[index].next  = index % list->size;
+            newNodesArray[index].value = list->data[nextNode].value;
+        }
+        else
+        {
+            if (list->freeHead == 0)
+            {
+                list->freeHead = index;
+            }
+
+            newNodesArray[index].prev = FreeValuePrev;
+            newNodesArray[index].next = index % (list->capacity + 1);
+        }
+
+        nextNode = list->data[nextNode].next;
+    }
+
+    free (list->data);
+
+    list->isListSorted = true;
+    list->head         = 1;
+    list->tail         = (list->size == 0 ? 1: list->size);
+    list->data         = newNodesArray;
+}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

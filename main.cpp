@@ -12,10 +12,15 @@ int main ()
 
     listPushBegin (&list, 20);
     listDump (&list);
+
     listPushBegin (&list, 10);
     listDump (&list);
+
     listPushAfter (&list, 2, 0xDED32);
     listDump (&list);
+
+    // listDestroyNode (&list, 2);
+    // listDump (&list);
 
     listDtor (&list);
 

@@ -38,6 +38,8 @@ struct list_t
     size_t freeHead;
     size_t size;
     size_t capacity;
+
+    bool   isListSorted;
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,6 +71,16 @@ size_t      listPushBefore      (list_t* list, size_t physIndex, elem_t pushValu
 size_t      listPushBegin       (list_t* list, elem_t pushValue);
 size_t      listPushEnd         (list_t* list, elem_t pushValue);
 void        listDestroyNode     (list_t* list, size_t physIndex);
+void        clearList           (list_t* list);
+elem_t      listTailRemove      (list_t* list);
+elem_t      listHeadRemove      (list_t* list);
+void        listLinearize       (list_t* list);
+void        clearList           (list_t* list);
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+size_t getPhysicalByLogicalAndDoNotSaveTheIndexMySelf   (list_t* list, size_t logicalIndex);
+size_t getLogicalByPhysical                             (list_t* list, size_t physIndex);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
