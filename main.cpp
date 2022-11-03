@@ -22,6 +22,12 @@ int main ()
     // listDestroyNode (&list, 2);
     // listDump (&list);
 
+    listLinearize(&list);
+    listDump(&list);
+
+    clearList (&list);
+    listDump (&list);
+
     listDtor (&list);
 
     return 0;

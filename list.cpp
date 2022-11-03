@@ -17,7 +17,7 @@ FILE* logFile = nullptr;
 
 int listCtor (list_t* list, size_t capacity)
 {
-    assert (list != nullptr);
+    ASSERT (list != nullptr);
 
     #ifdef GRAPHVIZ_DUMP
         if ((logFile = fopen ("log.html", "w")) == nullptr)
@@ -41,7 +41,7 @@ int listCtor (list_t* list, size_t capacity)
 
     list->data = (node_t*) calloc (capacity + 1, sizeof (node_t));
 
-    assert (list->data != nullptr);
+    ASSERT (list->data != nullptr);
     
     list->head      = 1;
     list->tail      = 1;
@@ -67,7 +67,7 @@ int listCtor (list_t* list, size_t capacity)
 
 int listDtor (list_t* list)
 {
-    assert (list != nullptr);
+    ASSERT (list != nullptr);
 
     if (isListDestructed (list) == 1)
     {
@@ -96,7 +96,7 @@ int listDtor (list_t* list)
 
 int isListDestructed (list_t* list)
 {
-    assert (list != nullptr);
+    ASSERT (list != nullptr);
     
     if (list-> head == Poison && list->tail == Poison && list->freeHead == Poison && list->size == Poison && list->capacity == Poison)
         return 1;
@@ -108,7 +108,7 @@ int isListDestructed (list_t* list)
 
 int isListEmpty (list_t* list)
 {
-    assert (list != nullptr);
+    ASSERT (list != nullptr);
 
     if (list->head == 1 && list->tail == 1 && list->freeHead == 1 && list->size == 0)
         return 1;
@@ -122,7 +122,7 @@ int isListEmpty (list_t* list)
 
     void listDump (const list_t* list)
     {
-        assert (list != nullptr);
+        ASSERT (list != nullptr);
         static unsigned dumpNum = 1;
 
         static char buf[512] = {0};
@@ -251,7 +251,7 @@ size_t listPrevElem (list_t* list, size_t physIndex)
 
 bool isListCorrect (list_t* list)
 {
-    assert (list != nullptr);
+    ASSERT (list != nullptr);
 
     node_t* data = list->data;
 
@@ -313,13 +313,13 @@ bool isListCorrect (list_t* list)
 
 node_t* listRecalloc (list_t* list, const size_t newCapacity)
 {
-    assert (list != nullptr);
+    ASSERT (list != nullptr);
     
     size_t capacity = newCapacity * sizeof (node_t);
 
     node_t* const data = (node_t*) realloc (list->data, capacity);
     
-    assert (data != nullptr);
+    ASSERT (data != nullptr);
 
     for (size_t index = list->capacity; index < newCapacity; index++)
     {
@@ -343,7 +343,7 @@ node_t* listRecalloc (list_t* list, const size_t newCapacity)
 
 size_t listPushBegin (list_t* list, elem_t pushValue)
 {
-    assert (list != nullptr);
+    ASSERT (list != nullptr);
 
     size_t currentIndex = 0;
     currentIndex = list->freeHead;
@@ -360,7 +360,7 @@ size_t listPushBegin (list_t* list, elem_t pushValue)
 
     list->size = list->size + 1;
 
-    assert (isListCorrect (list));
+    ASSERT (isListCorrect (list));
 
     return currentIndex;
 }
@@ -369,7 +369,7 @@ size_t listPushBegin (list_t* list, elem_t pushValue)
 
 size_t listPushEnd (list_t* list, elem_t pushValue)
 {
-    assert (list != nullptr);
+    ASSERT (list != nullptr);
 
     size_t currentIndex = 0;
     currentIndex = list->freeHead;
@@ -386,7 +386,7 @@ size_t listPushEnd (list_t* list, elem_t pushValue)
     list->tail = currentIndex;
     list->size = list->size + 1;
 
-    assert (isListCorrect (list));
+    ASSERT (isListCorrect (list));
 
     return currentIndex;
 }
@@ -395,9 +395,9 @@ size_t listPushEnd (list_t* list, elem_t pushValue)
 
 size_t listPushBefore (list_t* list, size_t physIndex, elem_t pushValue)
 {
-    assert (list != nullptr);
-    assert (physIndex <= list->capacity + 1);
-    assert (!(list->data[physIndex].prev == FreeValuePrev && (list->size != 0 || physIndex != list->tail)));
+    ASSERT (list != nullptr);
+    ASSERT (physIndex <= list->capacity + 1);
+    ASSERT (!(list->data[physIndex].prev == FreeValuePrev && (list->size != 0 || physIndex != list->tail)));
 
     size_t currentIndex = 0;
     currentIndex = list->freeHead;
@@ -416,7 +416,7 @@ size_t listPushBefore (list_t* list, size_t physIndex, elem_t pushValue)
 
     list->size = list->size + 1;
 
-    assert (isListCorrect (list));
+    ASSERT (isListCorrect (list));
 
     return currentIndex;
 }
@@ -425,9 +425,9 @@ size_t listPushBefore (list_t* list, size_t physIndex, elem_t pushValue)
 
 size_t listPushAfter (list_t* list, size_t physIndex, elem_t pushValue)
 {
-    assert (list != nullptr);
-    assert (physIndex <= list->capacity + 1);
-    assert (!(list->data[physIndex].prev == FreeValue && (list->size != 0 || physIndex != list->tail)));
+    ASSERT (list != nullptr);
+    ASSERT (physIndex <= list->capacity + 1);
+    ASSERT (!(list->data[physIndex].prev == FreeValue && (list->size != 0 || physIndex != list->tail)));
 
     size_t currentIndex = 0;
     currentIndex = list->freeHead;
@@ -446,7 +446,7 @@ size_t listPushAfter (list_t* list, size_t physIndex, elem_t pushValue)
 
     list->size = list->size + 1;
 
-    assert (isListCorrect (list));
+    ASSERT (isListCorrect (list));
 
     return currentIndex;
 } 
@@ -455,7 +455,7 @@ size_t listPushAfter (list_t* list, size_t physIndex, elem_t pushValue)
 
 void listDestroyNode (list_t* list, size_t physIndex)
 {
-    assert (list != nullptr);
+    ASSERT (list != nullptr);
 
     size_t prev = list->data[physIndex].prev;
     size_t next = list->data[physIndex].next;
@@ -471,14 +471,14 @@ void listDestroyNode (list_t* list, size_t physIndex)
 
     list->size = list->size - 1;
 
-    assert (isListCorrect (list));
+    ASSERT (isListCorrect (list));
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-size_t getPhysicalByLogicalAndDoNotSaveTheIndexMySelf (list_t* list, size_t logicalIndex)
+size_t getPhysicalByLogical (list_t* list, size_t logicalIndex)
 {
-    assert (list != nullptr);
+    ASSERT (list != nullptr);
 
     if (logicalIndex > list->size)
     {
@@ -493,9 +493,6 @@ size_t getPhysicalByLogicalAndDoNotSaveTheIndexMySelf (list_t* list, size_t logi
 
     size_t index = 1;
     size_t physicalIndex = list->head;
-
-    printf ("Bro, krasava, now go get an hour's sleep, or donate to the developer on the site: https://natribu.org/");
-    Sleep (3600);
 
     while (index < logicalIndex)
     {
@@ -573,8 +570,8 @@ elem_t listHeadRemove (list_t* list)
 
 void clearList (list_t* list)
 {
-    assert (list != nullptr);
-    assert (isListCorrect (list));
+    ASSERT (list != nullptr);
+    // ASSERT (isListCorrect (list));
 
     if (isListEmpty (list))
     {
@@ -586,19 +583,19 @@ void clearList (list_t* list)
         listTailRemove (list);
     }
 
-    assert (isListCorrect (list));
-    assert (isListEmpty   (list));
+    // ASSERT (isListCorrect (list));
+    // ASSERT (isListEmpty   (list));
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 void listLinearize (list_t* list)
 {
-    assert (list != nullptr);
+    ASSERT (list != nullptr);
 
     node_t* newNodesArray = (node_t*) calloc (list->capacity + 1, sizeof (node_t)); 
 
-    assert (newNodesArray != nullptr);
+    ASSERT (newNodesArray != nullptr);
 
     size_t nextNode = list->head;
 
@@ -637,6 +634,8 @@ void listLinearize (list_t* list)
     list->head         = 1;
     list->tail         = (list->size == 0 ? 1: list->size);
     list->data         = newNodesArray;
+
+    // ASSERT (isListCorrect (list));
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

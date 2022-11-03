@@ -22,6 +22,20 @@ const size_t ValueNullData       = 0xBEADFACE;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+#ifndef NDEBUG
+    #define ASSERT(condition)                                                                   \
+        if (!(condition))                                                                       \
+        {                                                                                       \
+            printf ("Assertion FAILED! Error in %s. FILE: %s. LINE: %d. FUNCTION: %s\n",        \
+                    #condition, __FILE__, __LINE__, __PRETTY_FUNCTION__);                       \
+        }
+#else
+    #define ASSERT(condition) ;
+#endif
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 struct node_t
 {
     size_t prev;
@@ -51,36 +65,33 @@ struct list_t
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-int         listCtor            (list_t* list, size_t capacity);
-int         listDtor            (list_t* list);
-int         isListDestructed    (list_t* list);
-int         isListEmpty         (list_t* list);
+int         listCtor                (list_t* list, size_t capacity);                
+int         listDtor                (list_t* list);                                   
+int         isListDestructed        (list_t* list);
+int         isListEmpty             (list_t* list);
 #ifdef GRAPHVIZ_DUMP
-    void listDump               (const list_t* list);
+    void listDump                   (const list_t* list);
 #else
-    void listDumpFunc           (list_t* list, size_t line, const char file[ParamMaxSize], const char func[ParamMaxSize]);
+    void listDumpFunc               (list_t* list, size_t line, const char file[ParamMaxSize], const char func[ParamMaxSize]);
 #endif
-size_t      listHead            (list_t* list);
-size_t      listTail            (list_t* list);
-size_t      listNextElem        (list_t* list, size_t physIndex);
-size_t      listPrevElem        (list_t* list, size_t physIndex);
-node_t*     listRecalloc        (list_t* list, const size_t newCapacity);
-bool        isListCorrect       (list_t* list);
-size_t      listPushAfter       (list_t* list, size_t physIndex, elem_t pushValue);
-size_t      listPushBefore      (list_t* list, size_t physIndex, elem_t pushValue);
-size_t      listPushBegin       (list_t* list, elem_t pushValue);
-size_t      listPushEnd         (list_t* list, elem_t pushValue);
-void        listDestroyNode     (list_t* list, size_t physIndex);
-void        clearList           (list_t* list);
-elem_t      listTailRemove      (list_t* list);
-elem_t      listHeadRemove      (list_t* list);
-void        listLinearize       (list_t* list);
-void        clearList           (list_t* list);
-
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-size_t getPhysicalByLogicalAndDoNotSaveTheIndexMySelf   (list_t* list, size_t logicalIndex);
-size_t getLogicalByPhysical                             (list_t* list, size_t physIndex);
+size_t      listHead                (list_t* list);                                 
+size_t      listTail                (list_t* list);
+size_t      listNextElem            (list_t* list, size_t physIndex);               
+size_t      listPrevElem            (list_t* list, size_t physIndex);            
+node_t*     listRecalloc            (list_t* list, const size_t newCapacity);
+bool        isListCorrect           (list_t* list); 
+size_t      listPushAfter           (list_t* list, size_t physIndex, elem_t pushValue);
+size_t      listPushBefore          (list_t* list, size_t physIndex, elem_t pushValue);
+size_t      listPushBegin           (list_t* list, elem_t pushValue);
+size_t      listPushEnd             (list_t* list, elem_t pushValue);
+void        listDestroyNode         (list_t* list, size_t physIndex);
+void        clearList               (list_t* list);
+elem_t      listTailRemove          (list_t* list);
+elem_t      listHeadRemove          (list_t* list);
+void        listLinearize           (list_t* list);
+void        clearList               (list_t* list);
+size_t      getPhysicalByLogical    (list_t* list, size_t logicalIndex);
+size_t      getLogicalByPhysical    (list_t* list, size_t physIndex);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
