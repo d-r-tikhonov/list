@@ -60,7 +60,10 @@ struct list_t
 
 #ifndef GRAPHVIZ_DUMP
     #define listDump(list) \
-        listDumpFunc (list, __LINE__, __FILE__, __PRETTY_FUNCTION__)
+        listTextDump (list, __LINE__, __FILE__, __PRETTY_FUNCTION__)
+    #else
+    #define listDump(list) \
+        listGraphDump (list)
 #endif
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -69,11 +72,8 @@ int         listCtor                (list_t* list, size_t capacity);
 int         listDtor                (list_t* list);                                   
 int         isListDestructed        (list_t* list);
 int         isListEmpty             (list_t* list);
-#ifdef GRAPHVIZ_DUMP
-    void listDump                   (const list_t* list);
-#else
-    void listDumpFunc               (list_t* list, size_t line, const char file[ParamMaxSize], const char func[ParamMaxSize]);
-#endif
+void        listGraphDump           (const list_t* list);
+void        listTextDump            (list_t* list, size_t line, const char file[ParamMaxSize], const char func[ParamMaxSize]);
 size_t      listHead                (list_t* list);                                 
 size_t      listTail                (list_t* list);
 size_t      listNextElem            (list_t* list, size_t physIndex);               

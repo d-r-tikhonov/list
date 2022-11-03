@@ -118,106 +118,102 @@ int isListEmpty (list_t* list)
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#ifdef GRAPHVIZ_DUMP
+void listGraphDump (const list_t* list)
+{
+    ASSERT (list != nullptr);
+    static unsigned dumpNum = 1;
 
-    void listDump (const list_t* list)
+    static char buf[512] = {0};
+    snprintf (buf, sizeof(buf), "dump%u.dot", dumpNum);
+
+    FILE* dotFile = fopen (buf, "w");
+
+    static const char Header[] = R"(
+                                    digraph {
+                                            dpi      = 57
+                                            fontname = "Aqum"
+                                            edge [color = darkgrey, arrowhead = onormal, arrowsize = 1.6, penwidth = 1.2]
+                                            graph[fillcolor = lightgreen, ranksep = 2.6, nodesep = 1,
+                                                    style = "rounded, filled", color = green, penwidth = 2]
+                                            node [penwidth = 2, shape = box, color = grey, 
+                                                    fillcolor = white, style = "rounded, filled", fontname = "Aqum"]
+                                            compound  =  true;
+                                            newrank   =  true;
+                                            rankdir   =  LR; 
+                                    )";
+
+    fprintf (dotFile, Header);
+
+    fprintf (dotFile, "0");
+    for (size_t index = 0; index <= list->capacity; index++) 
     {
-        ASSERT (list != nullptr);
-        static unsigned dumpNum = 1;
-
-        static char buf[512] = {0};
-        snprintf (buf, sizeof(buf), "dump%u.dot", dumpNum);
-
-        FILE* dotFile = fopen (buf, "w");
-
-        static const char Header[] = R"(
-                                        digraph {
-                                                dpi      = 57
-                                                fontname = "Aqum"
-                                                edge [color = darkgrey, arrowhead = onormal, arrowsize = 1.6, penwidth = 1.2]
-                                                graph[fillcolor = lightgreen, ranksep = 2.6, nodesep = 1,
-                                                     style = "rounded, filled", color = green, penwidth = 2]
-                                                node [penwidth = 2, shape = box, color = grey, 
-                                                     fillcolor = white, style = "rounded, filled", fontname = "Aqum"]
-                                                compound  =  true;
-                                                newrank   =  true;
-                                                rankdir   =  LR; 
-                                        )";
-
-        fprintf (dotFile, Header);
-
-        fprintf (dotFile, "0");
-        for (size_t index = 0; index <= list->capacity; index++) 
-        {
-            fprintf (dotFile, "-> %d", index);
-        }
-        fprintf (dotFile, "[style=invis, weight = 1, minlen = \"1.5\"]");
+        fprintf (dotFile, "-> %d", index);
+    }
+    fprintf (dotFile, "[style=invis, weight = 1, minlen = \"1.5\"]");
 
 
-        fprintf (dotFile, "free->%d:n[color=cadetblue]\n", list->freeHead);
-        fprintf (dotFile, "tail->%d:p[color=cadetblue]\n", list->tail);
-        fprintf (dotFile, "head->%d:n[color=cadetblue]\n", list->head);
+    fprintf (dotFile, "free->%d:n[color=cadetblue]\n", list->freeHead);
+    fprintf (dotFile, "tail->%d:p[color=cadetblue]\n", list->tail);
+    fprintf (dotFile, "head->%d:n[color=cadetblue]\n", list->head);
 
 
-        for (size_t index = 0; index <= list->capacity; index++) 
-        {
-            fprintf (dotFile, "subgraph cluster%d { \n"
-                            "       label = %d;  \n"
-                            "       fontsize = 14; \n", index, index);
+    for (size_t index = 0; index <= list->capacity; index++) 
+    {
+        fprintf (dotFile, "subgraph cluster%d { \n"
+                        "       label = %d;  \n"
+                        "       fontsize = 14; \n", index, index);
 
 
-            fprintf (dotFile, "%d [shape=record, label=\"<p>prev(HEX): %X | data(HEX): %X | <n>next(HEX): %X\"] \n} \n",
-                    index, list->data[index].prev, list->data[index].value, list->data[index].next);
+        fprintf (dotFile, "%d [shape=record, label=\"<p>prev(HEX): %X | data(HEX): %X | <n>next(HEX): %X\"] \n} \n",
+                index, list->data[index].prev, list->data[index].value, list->data[index].next);
 
-            if (list->data[index].prev != FreeValuePrev)
-                    fprintf (dotFile, "%u:n -> %d:n[color=darkgoldenrod2, style=dashed]\n", index, list->data[index].next);
-            else
-                    fprintf (dotFile, "%u:n -> %d:n[color=mediumpurple4 ]\n", index, list->data[index].next);
+        if (list->data[index].prev != FreeValuePrev)
+                fprintf (dotFile, "%u:n -> %d:n[color=darkgoldenrod2, style=dashed]\n", index, list->data[index].next);
+        else
+                fprintf (dotFile, "%u:n -> %d:n[color=mediumpurple4 ]\n", index, list->data[index].next);
 
-            if (list->data[index].prev != FreeValuePrev)
-                    fprintf (dotFile, "%u:p -> %d:p[color=darkslategray, style=dashed]\n", index, list->data[index].prev);
-        }
-
-        fprintf (dotFile, "\n}");
-
-        fclose (dotFile);
-
-        snprintf (buf, sizeof (buf), "dot -Tsvg dump%u.dot -o dump%u.svg", dumpNum, dumpNum);
-        system (buf);
-
-        fprintf (logFile, "<center""><h1"">LIST DUMP - INVOCATION %u</h1"">""</center"">\n", dumpNum);
-        fprintf (logFile, "<img src=\"dump%u.svg\"/>\n", dumpNum);
-
-        dumpNum++;
+        if (list->data[index].prev != FreeValuePrev)
+                fprintf (dotFile, "%u:p -> %d:p[color=darkslategray, style=dashed]\n", index, list->data[index].prev);
     }
 
-#else
+    fprintf (dotFile, "\n}");
 
-    void listDumpFunc (list_t* list, size_t line, const char file[ParamMaxSize], const char func[ParamMaxSize])
+    fclose (dotFile);
+
+    snprintf (buf, sizeof (buf), "dot -Tsvg dump%u.dot -o dump%u.svg", dumpNum, dumpNum);
+    system (buf);
+
+    fprintf (logFile, "<center""><h1"">LIST DUMP - INVOCATION %u</h1"">""</center"">\n", dumpNum);
+    fprintf (logFile, "<img src=\"dump%u.svg\"/>\n", dumpNum);
+
+    dumpNum++;
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+void listTextDump (list_t* list, size_t line, const char file[ParamMaxSize], const char func[ParamMaxSize])
+{
+    fprintf (logFile, "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~START LIST DUMP~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n");
+
+    fprintf (logFile, "Called at %s at %s(%d)\n", file, func, line);
+    fprintf (logFile, "List status: OK!\n"); 
+
+
+    fprintf (logFile, "Head: %d\nTail: %d\nFreeHead: %d\nSize: %d\nCapacity: %d\n", 
+        list->head, list->tail, list->freeHead, list->size, list->capacity);
+
+    fprintf (logFile, "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n");
+
+
+    fprintf (logFile, "Num.    Previous    Value   Next\n");
+
+    for (size_t index = 0; index <= list->capacity; ++index)
     {
-        fprintf (logFile, "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~START LIST DUMP~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n");
-
-        fprintf (logFile, "Called at %s at %s(%d)\n", file, func, line);
-        fprintf (logFile, "List status: OK!\n"); 
-
-
-        fprintf (logFile, "Head: %d\nTail: %d\nFreeHead: %d\nSize: %d\nCapacity: %d\n", 
-            list->head, list->tail, list->freeHead, list->size, list->capacity);
-
-        fprintf (logFile, "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n");
-
-
-        fprintf (logFile, "Num.    Previous    Value   Next\n");
-
-        for (size_t index = 0; index <= list->capacity; ++index)
-        {
-            fprintf (logFile, "%4d    %8d    %5d   %4d\n", index, list->data[index].prev, list->data[index].value, list->data[index].next);
-        }
-
-        fprintf (logFile, "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~END LIST DUMP~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+        fprintf (logFile, "%4d    %8d    %5d   %4d\n", index, list->data[index].prev, list->data[index].value, list->data[index].next);
     }
 
-#endif
+    fprintf (logFile, "\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~END LIST DUMP~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n");
+}
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
