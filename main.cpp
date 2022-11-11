@@ -7,7 +7,10 @@ int main ()
 {
     list_t list = {};
 
-    listCtor (&list, 10);
+    listCtor (&list, 5);
+    listDump (&list);
+
+    listRecalloc (&list, 6);
     listDump (&list);
 
     listPushBegin (&list, 20);

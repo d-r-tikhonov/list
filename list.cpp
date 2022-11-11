@@ -184,7 +184,7 @@ void listGraphDump (const list_t* list)
     system (buf);
 
     fprintf (logFile, "<center""><h1"">LIST DUMP - INVOCATION %u</h1"">""</center"">\n", dumpNum);
-    fprintf (logFile, "<img src=\"dump%u.svg\"/>\n", dumpNum);
+    fprintf (logFile, "<img width=\"1920\" height=\"1080\" src=\"dump%u.svg\"/>\n", dumpNum);
 
     dumpNum++;
 }
@@ -310,7 +310,8 @@ bool isListCorrect (list_t* list)
 node_t* listRecalloc (list_t* list, const size_t newCapacity)
 {
     ASSERT (list != nullptr);
-    
+    ASSERT (newCapacity > list->capacity);
+
     size_t capacity = newCapacity * sizeof (node_t);
 
     node_t* const data = (node_t*) realloc (list->data, capacity);
@@ -319,15 +320,19 @@ node_t* listRecalloc (list_t* list, const size_t newCapacity)
 
     for (size_t index = list->capacity; index < newCapacity; index++)
     {
-        data[index].next    = index + 1;
-        data[index].value   = FreeValue;
-        data[index].prev    = FreeValuePrev;
-
+        data[index].next  = index + 1;
+        data[index].value = FreeValue;
+        data[index].prev  = FreeValuePrev;
     }
 
-    data[newCapacity - 1].next = list->freeHead;
+    data[newCapacity].next  = 0;
+    data[newCapacity].value = FreeValue;
+    data[newCapacity].prev  = FreeValuePrev;
 
-    list->freeHead = list->capacity;
+    if (list->size == list->capacity)
+    {
+        list->freeHead = list->capacity + 1;
+    }
 
     list->capacity = newCapacity;
     list->data     = data;
