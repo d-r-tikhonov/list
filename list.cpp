@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <errno.h>
-#include <Windows.h>
 
 #include "list.h"
 
@@ -15,11 +14,9 @@ FILE* logFile = nullptr;
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-int listCtor (list_t* list, size_t capacity)
+int openLog (void)
 {
-    ASSERT (list != nullptr);
-
-    #ifdef GRAPHVIZ_DUMP
+     #ifdef GRAPHVIZ_DUMP
         if ((logFile = fopen ("log.html", "w")) == nullptr)
         {
             printf ("Error in function: %s. Error opening logFile!\n", __func__);
@@ -32,6 +29,28 @@ int listCtor (list_t* list, size_t capacity)
             return errno;
         }
     #endif
+
+    return 0;
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+int closeLog (void)
+{
+    if ((fclose (logFile)) != 0)
+    {
+        printf ("Error in function: %s. Error closing logFile!\n", __func__);
+        return errno;
+    }
+
+    return 0;
+}
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+int listCtor (list_t* list, size_t capacity)
+{
+    ASSERT (list != nullptr);
 
     if (capacity == 0)
     {
@@ -82,12 +101,6 @@ int listDtor (list_t* list)
     list->freeHead  = Poison;
     list->size      = Poison;
     list->capacity  = Poison;
-
-    if ((fclose (logFile)) != 0)
-    {
-        printf ("Error in function: %s. Error closing logFile!\n", __func__);
-        return errno;
-    }
 
     return 0;
 }
@@ -315,7 +328,6 @@ node_t* listRecalloc (list_t* list, const size_t newCapacity)
     ASSERT (newCapacity > list->capacity);
 
     listLinearize (list);
-    
     size_t capacity = (newCapacity + 1) * sizeof (node_t);
 
     node_t* const data = (node_t*) realloc (list->data, capacity);

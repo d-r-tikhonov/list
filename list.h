@@ -92,6 +92,8 @@ void        listLinearize           (list_t* list);
 void        clearList               (list_t* list);
 size_t      getPhysicalByLogical    (list_t* list, size_t logicalIndex);
 size_t      getLogicalByPhysical    (list_t* list, size_t physIndex);
+int         openLog                 (void);
+int         closeLog                (void);
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

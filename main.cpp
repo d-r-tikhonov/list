@@ -5,6 +5,8 @@
 
 int main ()
 {
+    openLog ();
+
     list_t list = {};
 
     listCtor (&list, 2);
@@ -29,6 +31,8 @@ int main ()
     listDump (&list);
 
     listDtor (&list);
+
+    closeLog ();
 
     return 0;
 }
