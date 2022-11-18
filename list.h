@@ -39,8 +39,9 @@ const size_t ValueNullData       = 0xBEADFACE;
 struct node_t
 {
     size_t prev;
-    elem_t value;
     size_t next;
+
+    elem_t value;
 };
 
 struct list_t
@@ -82,10 +83,9 @@ node_t*     listRecalloc            (list_t* list, const size_t newCapacity);
 bool        isListCorrect           (list_t* list); 
 size_t      listPushAfter           (list_t* list, size_t physIndex, elem_t pushValue);
 size_t      listPushBefore          (list_t* list, size_t physIndex, elem_t pushValue);
-size_t      listPushBegin           (list_t* list, elem_t pushValue);
-size_t      listPushEnd             (list_t* list, elem_t pushValue);
+size_t      listPushHead            (list_t* list, elem_t pushValue);
+size_t      listPushTail            (list_t* list, elem_t pushValue);
 void        listDestroyNode         (list_t* list, size_t physIndex);
-void        clearList               (list_t* list);
 elem_t      listTailRemove          (list_t* list);
 elem_t      listHeadRemove          (list_t* list);
 void        listLinearize           (list_t* list);

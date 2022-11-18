@@ -262,39 +262,41 @@ bool isListCorrect (list_t* list)
     {
         if (data[index].prev == FreeValuePrev) 
         {
-            if (data[index].next < 0 || data[index].next > list->capacity)
+            if (data[index].next > list->capacity)
             {
-                printf ("Error in function: %s. Verification FAILED! Condition: next < 0 OR next > capacity.\n", __func__);
+                printf ("Error in function: %s. Verification FAILED! Condition: next > capacity.\n", __func__);
                 listDump (list);
                 return 0;
             }
             continue;
         }
 
-        if (data[index].prev < 0 || data[index].prev > list->capacity)
+        if (data[index].prev > list->capacity)
         {
-            printf ("Error in function: %s. Verification FAILED! Condition: prev < 0 OR prev > capacity.\n", __func__);
+            printf ("Error in function: %s. Verification FAILED! Condition: prev > capacity.\n", __func__);
             listDump (list);
             return 0;
         }
 
-        if (data[index].next < 0 || data[index].next > list->capacity)
+        if (data[index].next > list->capacity)
         {
-            printf ("Error in function: %s. Verification FAILED! Condition: next < 0 OR next > capacity.\n", __func__);
+            printf ("Error in function: %s. Verification FAILED! Condition: next > capacity.\n", __func__);
             listDump (list);
             return 0;
         }
 
         if (data[data[index].prev].next != index && index != list->head)
         {
-            printf ("Error in function: %s. Verification FAILED!\n", __func__);
+            printf ("Error in function: %s. Verification FAILED!"
+                    "Condition: data[data[index].prev].next != index && index != list->head.\n", __func__);
             listDump (list);
             return 0;
         }
 
         if (data[data[index].next].prev != index && index != list->tail)
         {
-            printf ("Error in function: %s. Verification FAILED!\n", __func__);
+            printf ("Error in function: %s. Verification FAILED!"
+                    "Condition: data[data[index].next].prev != index && index != list->tail.\n", __func__);
             listDump (list);
             return 0;
         }
@@ -312,13 +314,16 @@ node_t* listRecalloc (list_t* list, const size_t newCapacity)
     ASSERT (list != nullptr);
     ASSERT (newCapacity > list->capacity);
 
-    size_t capacity = newCapacity * sizeof (node_t);
+    listLinearize (list);
+    
+    size_t capacity = (newCapacity + 1) * sizeof (node_t);
 
     node_t* const data = (node_t*) realloc (list->data, capacity);
-    
     ASSERT (data != nullptr);
 
-    for (size_t index = list->capacity; index < newCapacity; index++)
+    data[list->capacity].next = list->capacity + 1;
+
+    for (size_t index = list->capacity + 1; index < newCapacity; index++)
     {
         data[index].next  = index + 1;
         data[index].value = FreeValue;
@@ -342,7 +347,7 @@ node_t* listRecalloc (list_t* list, const size_t newCapacity)
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-size_t listPushBegin (list_t* list, elem_t pushValue)
+size_t listPushHead (list_t* list, elem_t pushValue)
 {
     ASSERT (list != nullptr);
 
@@ -353,13 +358,27 @@ size_t listPushBegin (list_t* list, elem_t pushValue)
 
     list->data[currentIndex].value = pushValue;
 
-    list->data[currentIndex].next = list->head;
+    if (list->data[list->head].next == currentIndex)
+    {
+        list->data[list->head].next = list->data[currentIndex].next;
+    }
+
+    if (list->size != 0)
+    {
+        list->data[currentIndex].next = list->head;
+    }
+
+    list->size = list->size + 1;
+
+    if (list->capacity == list->size)
+    {
+        list->data[list->head].next = 0;
+    }
+    
     list->data[list->head].prev = currentIndex;
     list->data[currentIndex].prev = 0;
 
     list->head = currentIndex;
-
-    list->size = list->size + 1;
 
     ASSERT (isListCorrect (list));
 
@@ -368,7 +387,7 @@ size_t listPushBegin (list_t* list, elem_t pushValue)
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-size_t listPushEnd (list_t* list, elem_t pushValue)
+size_t listPushTail (list_t* list, elem_t pushValue)
 {
     ASSERT (list != nullptr);
 
@@ -436,6 +455,12 @@ size_t listPushAfter (list_t* list, size_t physIndex, elem_t pushValue)
     list->freeHead = list->data[currentIndex].next;
 
     size_t indexNext = list->data[physIndex].next;
+
+    if (list->data[indexNext].next == currentIndex)
+    {
+        list->data[indexNext].next = list->freeHead;
+        list->freeHead = list->data[list->freeHead].next;
+    }
 
     list->data[currentIndex].value = pushValue;
     list->data[currentIndex].prev  = physIndex;
@@ -532,7 +557,16 @@ elem_t listTailRemove (list_t* list)
 {
     elem_t value = list->data[list->tail].value;
 
-    size_t newTail = list->data[list->tail].prev;
+    size_t newTail = 0;
+
+    if (list->data[list->tail].prev != 0)
+    {
+        newTail = list->data[list->tail].prev;
+    }
+    else
+    {
+        newTail = 1;
+    }
 
     list->data[list->tail].prev  = FreeValuePrev;
     list->data[list->tail].value = DeletePoison;
@@ -572,7 +606,7 @@ elem_t listHeadRemove (list_t* list)
 void clearList (list_t* list)
 {
     ASSERT (list != nullptr);
-    // ASSERT (isListCorrect (list));
+    ASSERT (isListCorrect (list));
 
     if (isListEmpty (list))
     {
@@ -584,8 +618,8 @@ void clearList (list_t* list)
         listTailRemove (list);
     }
 
-    // ASSERT (isListCorrect (list));
-    // ASSERT (isListEmpty   (list));
+    ASSERT (isListCorrect (list));
+    ASSERT (isListEmpty   (list));
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -595,25 +629,26 @@ void listLinearize (list_t* list)
     ASSERT (list != nullptr);
 
     node_t* newNodesArray = (node_t*) calloc (list->capacity + 1, sizeof (node_t)); 
-
     ASSERT (newNodesArray != nullptr);
 
-    size_t nextNode = list->head;
+    newNodesArray[0].value = ValueNullData;
+
+    size_t node = list->head;
 
     if (list->size == 0)
     {
-        nextNode = 0;
+        node = 0;
     }
 
     list->freeHead = 0;
 
     for (size_t index = 1; index <= list->capacity; index++)
     {
-        if (nextNode != 0)
+        if (list->data[node].prev != FreeValuePrev)
         {
-            newNodesArray[index].prev  = (index == 1 ? 0 : index - 1);
-            newNodesArray[index].next  = index % list->size;
-            newNodesArray[index].value = list->data[nextNode].value;
+            newNodesArray[index].prev  = index - 1;
+            newNodesArray[index].next  = index + 1;
+            newNodesArray[index].value = list->data[node].value;
         }
         else
         {
@@ -623,20 +658,20 @@ void listLinearize (list_t* list)
             }
 
             newNodesArray[index].prev = FreeValuePrev;
-            newNodesArray[index].next = index % (list->capacity + 1);
+            newNodesArray[index].next = (index + 1) % (list->capacity + 1);
         }
 
-        nextNode = list->data[nextNode].next;
+        node = list->data[node].next;
     }
 
     free (list->data);
 
     list->isListSorted = true;
     list->head         = 1;
-    list->tail         = (list->size == 0 ? 1: list->size);
+    list->tail         = list->size;
     list->data         = newNodesArray;
 
-    // ASSERT (isListCorrect (list));
+    ASSERT (isListCorrect (list));
 }
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

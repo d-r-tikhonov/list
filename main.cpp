@@ -7,23 +7,20 @@ int main ()
 {
     list_t list = {};
 
-    listCtor (&list, 5);
+    listCtor (&list, 2);
     listDump (&list);
 
-    listRecalloc (&list, 6);
+    listPushHead (&list, 0xF1);
     listDump (&list);
 
-    listPushBegin (&list, 20);
+    listPushHead (&list, 0xF2);
     listDump (&list);
 
-    listPushBegin (&list, 10);
+    listRecalloc (&list, 3);
     listDump (&list);
 
     listPushAfter (&list, 2, 0xDED32);
     listDump (&list);
-
-    // listDestroyNode (&list, 2);
-    // listDump (&list);
 
     listLinearize(&list);
     listDump(&list);

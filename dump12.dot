@@ -1,0 +1,77 @@
+
+                                    digraph {
+                                            dpi      = 57
+                                            fontname = "Aqum"
+                                            edge [color = darkgrey, arrowhead = onormal, arrowsize = 1.6, penwidth = 1.2]
+                                            graph[fillcolor = lightgreen, ranksep = 2.6, nodesep = 1,
+                                                    style = "rounded, filled", color = green, penwidth = 2]
+                                            node [penwidth = 2, shape = box, color = grey, 
+                                                    fillcolor = white, style = "rounded, filled", fontname = "Aqum"]
+                                            compound  =  true;
+                                            newrank   =  true;
+                                            rankdir   =  LR; 
+                                    0-> 0-> 1-> 2-> 3-> 4-> 5-> 6-> 7-> 8[style=invis, weight = 1, minlen = "1.5"]free->1:n[color=cadetblue]
+tail->1:p[color=cadetblue]
+head->1:n[color=cadetblue]
+subgraph cluster0 { 
+       label = 0;  
+       fontsize = 14; 
+0 [shape=record, label="<p>prev(HEX): 0 | data(HEX): BEADFACE | <n>next(HEX): 0"] 
+} 
+0:n -> 0:n[color=darkgoldenrod2, style=dashed]
+0:p -> 0:p[color=darkslategray, style=dashed]
+subgraph cluster1 { 
+       label = 1;  
+       fontsize = 14; 
+1 [shape=record, label="<p>prev(HEX): CAFEBABE | data(HEX): FEE1DEAD | <n>next(HEX): 2"] 
+} 
+1:n -> 2:n[color=mediumpurple4 ]
+subgraph cluster2 { 
+       label = 2;  
+       fontsize = 14; 
+2 [shape=record, label="<p>prev(HEX): CAFEBABE | data(HEX): FEE1DEAD | <n>next(HEX): 3"] 
+} 
+2:n -> 3:n[color=mediumpurple4 ]
+subgraph cluster3 { 
+       label = 3;  
+       fontsize = 14; 
+3 [shape=record, label="<p>prev(HEX): CAFEBABE | data(HEX): FEE1DEAD | <n>next(HEX): 0"] 
+} 
+3:n -> 0:n[color=mediumpurple4 ]
+subgraph cluster4 { 
+       label = 4;  
+       fontsize = 14; 
+4 [shape=record, label="<p>prev(HEX): 3 | data(HEX): DED32 | <n>next(HEX): 5"] 
+} 
+4:n -> 5:n[color=darkgoldenrod2, style=dashed]
+4:p -> 3:p[color=darkslategray, style=dashed]
+subgraph cluster5 { 
+       label = 5;  
+       fontsize = 14; 
+5 [shape=record, label="<p>prev(HEX): 4 | data(HEX): DED32 | <n>next(HEX): 6"] 
+} 
+5:n -> 6:n[color=darkgoldenrod2, style=dashed]
+5:p -> 4:p[color=darkslategray, style=dashed]
+subgraph cluster6 { 
+       label = 6;  
+       fontsize = 14; 
+6 [shape=record, label="<p>prev(HEX): 5 | data(HEX): DED32 | <n>next(HEX): 7"] 
+} 
+6:n -> 7:n[color=darkgoldenrod2, style=dashed]
+6:p -> 5:p[color=darkslategray, style=dashed]
+subgraph cluster7 { 
+       label = 7;  
+       fontsize = 14; 
+7 [shape=record, label="<p>prev(HEX): 6 | data(HEX): DED32 | <n>next(HEX): 8"] 
+} 
+7:n -> 8:n[color=darkgoldenrod2, style=dashed]
+7:p -> 6:p[color=darkslategray, style=dashed]
+subgraph cluster8 { 
+       label = 8;  
+       fontsize = 14; 
+8 [shape=record, label="<p>prev(HEX): 7 | data(HEX): DED32 | <n>next(HEX): 9"] 
+} 
+8:n -> 9:n[color=darkgoldenrod2, style=dashed]
+8:p -> 7:p[color=darkslategray, style=dashed]
+
+}
